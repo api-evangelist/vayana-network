@@ -1,0 +1,150 @@
+generated: '2026-09-02'
+method: searched
+source: https://www.vayana.com/gsp/
+docs:
+- https://www.vayana.com/gsp/
+- https://docs.enriched-api.vayana.com/components/schema/
+- https://docs.gsp.vayana.com/api-ecosystem/
+note: >-
+  Vayana is a GSTN-authorized GST Suvidha Provider. Its market has an unusually strong domain
+  standard set, and Vayana's contract speaks it natively rather than through a bespoke shape:
+  the Generate E-Invoice request body IS the Indian GST e-invoice schema, field for field.
+
+domain_standards:
+- id: gst-einvoice-inv-01
+  name: Indian GST e-invoice schema (INV-01 / IRP e-invoicing standard)
+  authority: Goods and Services Tax Network (GSTN) / National Informatics Centre (NIC) Invoice Registration Portal
+  conforms: true
+  confidence: high
+  evidence:
+    type: contract-schema-signature
+    location: openapi/vayana-network-atlas-openapi.json -> paths./atlas/v1/irp/{irp}/einvoice.post.requestBody.content.application/json.schema
+    detail: >-
+      The request body is the GST e-invoice document verbatim, not a Vayana abstraction over it.
+      Root properties are Version, Irn, TranDtls, DocDtls, SellerDtls, BuyerDtls, DispDtls,
+      ShipDtls, ItemList, ValDtls, PayDtls, RefDtls, AddlDocDtls, ExpDtls, EwbDtls, with
+      Version pinned to "1.1". TranDtls carries TaxSch, SupTyp, RegRev, EcmGstin and IgstOnIntra;
+      SellerDtls and BuyerDtls carry Gstin, LglNm, TrdNm, Pos, Stcd. Response fields include
+      AckNo, AckDt, Irn, SignedInvoice and SignedQRCode.
+    consequence: >-
+      An integrator who already produces the government INV-01 payload can post it to Vayana with
+      no field mapping. That is the difference this check is meant to draw.
+  url: https://s.docs.atlas.vayana.com/
+
+- id: nic-eway-bill
+  name: NIC E-Way Bill API standard
+  authority: National Informatics Centre, Government of India
+  conforms: true
+  confidence: high
+  evidence:
+    type: contract-operation-and-error-vocabulary
+    location: openapi/vayana-network-atlas-openapi.json (Compliance Suite) and errors/vayana-network-problem-types.yml
+    detail: >-
+      Vayana exposes the NIC E-Way Bill operation set under its own paths (generate, cancel,
+      update Part B, update transporter, extend validity, reject, consolidate, regenerate
+      consolidated, initiate and change multi-vehicle movement, transporter and HSN master
+      lookups) and surfaces the NIC error dictionary itself through a callable Get Error List
+      operation, whose documented response carries 287 NIC error codes reproduced in the
+      error catalog artifact.
+  url: https://docs.enriched-api.vayana.com/routes/basic/ewb/
+
+- id: gstn-returns-api
+  name: GSTN Returns / taxpayer API ecosystem
+  authority: Goods and Services Tax Network (GSTN)
+  conforms: true
+  confidence: high
+  evidence:
+    type: documented-passthrough-and-shared-validation
+    location: https://docs.enriched-api.vayana.com/components/schema/#patterns-and-formats
+    detail: >-
+      Vayana publishes the GSTIN regular expression it validates against and cites its source as
+      developer.gst.gov.in/apiportal/taxpayer/returns. Its GSTN surface covers authentication,
+      OTP request, refresh, logout, GSTR-1 / GSTR-2A / GSTR-2B / GSTR-3B / GSTR-6 / CMP return
+      download, view-and-track returns, search taxpayer and the Invoice Management System (IMS)
+      operations, mirroring the GSTN taxpayer API contract.
+  url: https://docs.gsp.vayana.com/GSTN/_index/
+
+- id: gstn-gsp-authorization
+  name: GSTN GST Suvidha Provider (GSP) authorization
+  authority: Goods and Services Tax Network (GSTN)
+  conforms: true
+  confidence: high
+  evidence:
+    type: assigned-identifier
+    detail: >-
+      Vayana holds the GSP code "vay", which is the only value its APIs accept for the
+      X-FLYNN-N-IRP-GSP-CODE and X-FLYNN-N-EWB-GSP-CODE headers. A GSP code is issued by GSTN,
+      not self-asserted; taxpayers register against it on the government portal.
+    location: https://docs.enriched-api.vayana.com/components/headers/#x-flynn-n-gsp-code
+  url: https://www.vayana.com/gsp/
+
+cross_cutting:
+- id: oauth2
+  conforms: false
+  evidence: >-
+    No OAuth 2.0 flow is published. The Atlas OpenAPI declares only an http/bearer scheme and the
+    EAS uses proprietary X-FLYNN-* headers.
+- id: oidc
+  conforms: false
+  evidence: No OpenID Connect discovery document is served; /.well-known/openid-configuration returns 404 on every Vayana host probed.
+- id: rfc9457
+  conforms: false
+  evidence: >-
+    Errors use a proprietary envelope ({error:{message,type,args}} in v1/v2, and a
+    {status,data,error,info,additionalInfo,alert} wrapper in v3). No application/problem+json
+    media type appears in the contract.
+- id: rfc8594
+  name: Sunset/Deprecation HTTP headers
+  conforms: false
+  evidence: >-
+    Deprecation is genuinely and consistently documented, but only in documentation prose and
+    per-operation availability tables; no Sunset or Deprecation response header is emitted.
+- id: idempotency
+  conforms: false
+  evidence: No idempotency key or de-duplication window is documented on any write operation.
+- id: pagination
+  conforms: partial
+  evidence: >-
+    Page-number paging exists only on long-running task results
+    (/enriched/tasks/{v}/result/{task-id}/page/{page-number}); synchronous collection operations
+    are unpaged.
+- id: json-schema
+  conforms: true
+  evidence: >-
+    The Atlas contract is OpenAPI 3.1.0, which uses JSON Schema 2020-12 as its schema dialect;
+    request and response schemas are declared inline throughout.
+- id: openapi
+  conforms: true
+  evidence: openapi/vayana-network-atlas-openapi.json — OpenAPI 3.1.0, 64 paths, 65 operations, 63 with operationId.
+
+certifications:
+- id: iso-27001
+  name: ISO/IEC 27001 Information Security Management
+  claimed: true
+  evidence_type: certification badge published on the provider's own GSP product page
+  evidence_url: https://www.vayana.com/gsp/
+  named_scope_published: false
+  note: The badge is displayed without a certificate number, scope statement, issuing body or expiry date.
+- id: pci-dss
+  name: PCI DSS (displayed as "PCI Security")
+  claimed: true
+  evidence_type: certification badge published on the provider's own GSP product page
+  evidence_url: https://www.vayana.com/gsp/
+  named_scope_published: false
+  note: No compliance level, assessor or attestation date is published.
+- id: sap-certified-integration
+  name: SAP Certified Integration with Cloud Solutions
+  claimed: true
+  evidence_type: certification badge published on the provider's own GSP product page
+  evidence_url: https://www.vayana.com/gsp/
+  note: >-
+    A partner-ecosystem certification rather than a security one; recorded because it is a
+    verifiable third-party integration claim relevant to enterprise buyers. Vayana also ships
+    an SAP plugin (https://atlas.vayana.com/sap-plugin/).
+
+gaps:
+- No trust center, no SOC 2 report, no published certificate numbers or scope statements, and no
+  security whitepaper were found; the certification claims are badges on a marketing page.
+- No security.txt, vulnerability disclosure policy or bug bounty program was found on any Vayana host.
+- No public sub-processor list, data-residency statement or DPA was found, which is notable for a
+  provider handling Aadhaar, PAN, passport and bank-account verification data.

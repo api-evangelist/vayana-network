@@ -1,0 +1,122 @@
+generated: '2026-09-02'
+method: searched
+source: https://docs.enriched-api.vayana.com/routes/basic/einv/apis/Generate-IRN/
+docs:
+- https://docs.enriched-api.vayana.com/1s2-integrating/#module-urls
+- https://docs.enriched-api.vayana.com/routes/basic/einv/apis/Cancel-IRN/
+- https://docs.enriched-api.vayana.com/routes/basic/ewb/apis/Cancel-EWB/2-cancel-ewb-vone-oh/
+- https://docs.enriched-api.vayana.com/3-downloads/
+
+versioning:
+  scheme: path-segment, dual-axis
+  detail: >-
+    Vayana's own service version ({flynn-version}) and the downstream government API version are
+    separate path segments. Both move independently.
+  current_versions:
+    atlas: v1
+    eas_flynn: v3.0 (v3.1 exists for bulk IRN generation)
+    sso_theodore: v1
+  historical_versions: [v1.0, v2.0, v3.0, v3.1]
+
+deprecation:
+  policy_published: true
+  policy_style: per-operation notices plus a per-operation version-availability matrix
+  headers:
+    rfc8594_sunset: false
+    deprecation_header: false
+    note: >-
+      Deprecation is communicated in documentation prose and tables, not in RFC 8594 Sunset or
+      Deprecation response headers. A running client gets no runtime signal.
+  practice: >-
+    Every EAS operation page carries a "Flynn Versions" table listing each version against whether
+    it is Available in Production and in Sandbox. Superseded versions carry an explicit banner
+    naming the replacement, in two distinct grades: "This API is Deprecated soon. Please use
+    VERSION THREE OH (v3.0)" for versions still available, and "This API is Deprecated." for those
+    already withdrawn. This is a real, consistently applied deprecation practice, applied across
+    dozens of operations rather than announced once.
+  announced_deprecations:
+  - subject: EAS Flynn version v1.0
+    status: deprecated soon
+    replacement: v3.0
+    scope: applied across e-invoicing, E-Way Bill and GSTN operation families
+    evidence: https://docs.enriched-api.vayana.com/routes/basic/einv/apis/Generate-IRN/1-generate-irn-vone-oh/
+  - subject: EAS Flynn version v2.0
+    status: deprecated soon
+    replacement: v3.0
+    evidence: https://docs.enriched-api.vayana.com/routes/basic/ewb/apis/Cancel-EWB/1-cancel-ewb-vtwo-oh/
+  - subject: EAS E-Way Bill Flynn version v1.0
+    status: deprecated
+    replacement: v3.0
+    evidence: https://docs.enriched-api.vayana.com/routes/basic/ewb/apis/Cancel-EWB/2-cancel-ewb-vone-oh/
+  - subject: IRP path parameter value "nic"
+    status: deprecated
+    replacement: ni1 or ni2
+    note: >-
+      A parameter VALUE deprecation, not an operation one. Callers pinned to irp=nic must move to a
+      specific IRP instance. This is the multi-IRP routing Vayana markets as Dual-IRP.
+    evidence: https://docs.enriched-api.vayana.com/routes/basic/einv/apis/Generate-IRN/0-generate-irn-vthree-oh/#notes
+  deprecated_operations_in_openapi: 0
+  deprecated_operations_note: >-
+    No operation in the Atlas OpenAPI carries `deprecated: true`; the deprecation signal lives only
+    in the EAS documentation site, so it is invisible to any tool reading the machine-readable contract.
+
+environment_availability:
+  note: >-
+    Availability is tracked per version per environment, and they genuinely diverge. Close E-Way
+    Bill is documented as sandbox-only, so a flow that works in sandbox can be unbuildable in production.
+  sandbox_only_operations:
+  - closeEwayBill (POST /basic/eway/{flynn-version}/{ewb_provider}/{ewb-api-version}/ewayapi/close)
+
+status_page:
+  published: false
+  note: >-
+    No status.* host, status page or incident history was found for vayana.com, and no status link
+    appears in the developer documentation or on the marketing site. Health-check endpoints are
+    offered instead, per environment, but they report only liveness to the caller who polls them.
+  health_endpoints:
+  - https://services.vayana.com/theodore/apis/health
+  - https://sandbox.services.vayananet.com/theodore/apis/health
+  - https://api.gsp.vayana.com/gus/ping
+  - https://yoda.api.vayanagsp.in/gus/ping
+  - '{env}.enriched-api.vayana.com/ping'
+  health_source: https://docs.enriched-api.vayana.com/routes/ping/
+
+sla:
+  published: false
+  note: >-
+    No uptime commitment, response-time target or credit schedule is published on the marketing
+    site or in the documentation. Vayana states availability posture qualitatively only ("multi-server
+    cluster hosted for high availability" for the GSP sandbox cluster).
+
+certificate_rotation:
+  note: >-
+    Vayana publishes the expiry dates of its own server domain certificates on the downloads page so
+    integrators can plan pinning, which is an unusual and useful lifecycle disclosure.
+  published_expiries:
+  - environment: production
+    subject: Authentication Server domain certificate
+    expires: '2027-02-23'
+  - environment: production
+    subject: EAS Server domain certificate
+    expires: '2027-02-23'
+  - environment: sandbox
+    subject: Authentication Server domain certificate
+    expires: '2026-11-28'
+  - environment: sandbox
+    subject: EAS Server domain certificate
+    expires: '2026-11-28'
+  source: https://docs.enriched-api.vayana.com/3-downloads/
+
+data_retention:
+- subject: long-running task results
+  retention: 7 days from generation of the reference token
+  source: https://docs.enriched-api.vayana.com/routes/enriched/long-running-tasks/
+- subject: API usage reporting history
+  retention: 18 months, with a maximum 90-day span per call
+  source: https://docs.enriched-api.vayana.com/routes/enriched/Get-Api-Usage/get-api-usage-vone-oh/
+
+changelog:
+  published: false
+  note: >-
+    No dated changelog or release-notes page exists on any of the three documentation sites. Version
+    history is reconstructable only from the per-operation availability tables.

@@ -1,0 +1,59 @@
+generated: '2026-09-02'
+method: searched
+source: https://docs.enriched-api.vayana.com/
+searched:
+- https://docs.enriched-api.vayana.com/1s2-integrating/
+- https://docs.enriched-api.vayana.com/components/headers/
+- https://docs.enriched-api.vayana.com/routes/enriched/long-running-tasks/
+- https://docs.gsp.vayana.com/
+- openapi/vayana-network-atlas-openapi.json
+limit_count: 0
+headers_documented: false
+response_headers: []
+status_on_exhaustion: null
+note: >-
+  Vayana publishes no request-rate limit anywhere: no requests-per-second, per-minute or per-day
+  figure, no burst allowance, no X-RateLimit-* or RateLimit-* response header, no Retry-After, and
+  no 429 response on any of the 65 operations in the Atlas OpenAPI (the only documented statuses
+  are 200, 400, 401, 403 and 500). An agent has no runtime signal for how hard it may push and no
+  documented behaviour to expect when it pushes too hard. This is an honest zero, not an unchecked
+  field. What Vayana does publish is a set of hard per-request and per-account CAPS, recorded
+  below: they bound the size of a single call rather than the rate of calls, so they are listed
+  separately rather than counted as rate limits.
+caps:
+- scope: per-request
+  operation: Verify E-Invoice (and the related verification calls)
+  limit: 50 IRNs per API call
+  extra: Duplicate IRNs are rejected within a single call.
+  source: https://docs.enriched-api.vayana.com/routes/enriched/Trade-Verification-Service/Verify%20EInvoice/apis/Verify-EInvoice/verify-einvoice/
+- scope: per-request
+  operation: Verify E-Invoice PDF
+  limit: 5 GB maximum uploaded file size, MIME type PDF only
+  source: https://docs.enriched-api.vayana.com/routes/enriched/Trade-Verification-Service/Verify%20EInvoice/apis/Verify-EInvoice-Pdf/verify-einvoice-pdf/
+- scope: per-request
+  operation: Get Api Usage
+  limit: 90 days of data per call
+  extra: to-date must not be in the future.
+  source: https://docs.enriched-api.vayana.com/routes/enriched/Get-Api-Usage/get-api-usage-vone-oh/
+- scope: per-account
+  operation: Get Api Usage
+  limit: 18 months of retrievable history
+  source: https://docs.enriched-api.vayana.com/routes/enriched/Get-Api-Usage/get-api-usage-vone-oh/
+- scope: per-user
+  operation: POST /theodore/apis/v1/authtokens
+  limit: 10 concurrently active sessions/tokens per user
+  error_on_exhaustion: err-active-tokens-limit-exceeded (HTTP 401)
+  remediation: Log out unused sessions, or reuse a token rather than minting one per call.
+  source: https://docs.enriched-api.vayana.com/components/error-payloads/#token-limit-exceed
+- scope: per-token
+  operation: authentication session
+  limit: token duration max 360 minutes; hard session expiry at 6x the token duration
+  source: https://docs.enriched-api.vayana.com/1s1-onboarding/#generate-auth-token
+- scope: per-task
+  operation: long-running task results
+  limit: results retrievable for 7 days from generation of the reference token
+  source: https://docs.enriched-api.vayana.com/routes/enriched/long-running-tasks/
+upstream_note: >-
+  Vayana is a pass-through to GSTN, NIC and the IRPs, which apply their own throttling. Vayana does
+  not restate those limits, so a caller cannot learn the effective ceiling from Vayana's documentation.
+limits: []

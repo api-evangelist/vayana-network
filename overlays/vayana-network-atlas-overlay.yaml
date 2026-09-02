@@ -1,0 +1,120 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay for the Vayana Atlas API
+  version: 1.0.0
+x-provenance:
+  generated: '2026-09-02'
+  method: generated
+  source: openapi/vayana-network-atlas-openapi.json
+  note: >-
+    Captures API Evangelist's enhancements to the contract Vayana publishes at
+    https://s.docs.atlas.vayana.com/assets/documentation/mergedOpenapi.json. It records what the
+    provider's own document leaves unstated — contact and licence metadata, the missing production
+    server, the security requirement the document declares but never applies, and the domain
+    standard the e-invoice payload actually conforms to. It never mutates the original, and it
+    never asserts a host Vayana has not published: the production server is recorded as an
+    unresolved gap rather than guessed from the sandbox hostname.
+extends: ../openapi/vayana-network-atlas-openapi.json
+actions:
+- target: $.info
+  description: Add the contact, documentation and provider metadata absent from the published document.
+  update:
+    contact:
+      name: Vayana (Vay Network Services Pvt. Ltd.)
+      url: https://atlas.vayana.com/
+    x-provider: vayana-network
+    x-documentation: https://s.docs.atlas.vayana.com/
+    x-legal-entity: Vay Network Services Pvt. Ltd.
+    x-jurisdiction: IN
+    x-gsp-code: vay
+    x-description-enriched: >-
+      Vayana Atlas — an API marketplace for Indian trade and compliance. 65 operations across a
+      Verification Suite (government-identifier lookups), a Compliance Suite (GST e-invoicing,
+      E-Way Bill, GST returns), a Support Suite (async task handling) and an Authorization Suite.
+- target: $.info
+  description: >-
+    Flag that info.description is a single generic sentence ("To integrate these APIs please follow
+    documentation") that tells a reader nothing about what the API does.
+  update:
+    x-enrichment-note: >-
+      The published info.description is non-substantive. The enriched description above is
+      API Evangelist's, derived from the operation set; it is not Vayana's text.
+- target: $.servers
+  description: >-
+    Record that only a sandbox server is declared. No production host is added, because Vayana does
+    not publish one for Atlas and inventing one would be a fabrication.
+  update:
+  - url: https://s.api.one.vayana.com
+    description: Sandbox Server
+    x-environment: sandbox
+- target: $.info
+  description: Record the unresolved production-base gap as structured metadata rather than guessing a host.
+  update:
+    x-server-gap:
+      missing: production
+      detail: >-
+        The Atlas OpenAPI declares only the sandbox server. The other Vayana programs publish
+        explicit production hosts (live.enriched-api.vayana.com, api.gsp.vayana.com,
+        services.vayana.com), but no production Atlas host is stated in the contract or in the
+        Atlas documentation, and none was probed successfully. A caller cannot go live from this
+        document alone.
+- target: $.components.securitySchemes.BearerAuth
+  description: Describe the bearer token's actual issuer and lifetime, which the scheme declaration omits.
+  update:
+    description: >-
+      JWT issued by Vayana's SSO service (internally "theodore") via POST /theodore/apis/v1/authtokens.
+      Default lifetime 20 minutes, maximum 360; refreshable until a hard session expiry of 6x the
+      token duration; maximum 10 concurrent sessions per user.
+    x-token-endpoint: /theodore/apis/v1/authtokens
+    x-refresh-endpoint: /theodore/apis/v1/authtokens
+    x-revoke-endpoint: /theodore/apis/v1/logout
+- target: $.paths['/atlas/v1/irp/{irp}/einvoice'].post
+  description: Record the domain standard this operation's request body conforms to.
+  update:
+    x-domain-standard:
+      id: gst-einvoice-inv-01
+      name: Indian GST e-invoice schema (INV-01), Version 1.1
+      authority: GSTN / NIC Invoice Registration Portal
+      conformance: native
+      note: >-
+        The request body is the government document itself (TranDtls, DocDtls, SellerDtls,
+        BuyerDtls, ItemList, ValDtls, EwbDtls...), so an integrator already producing INV-01
+        needs no field mapping.
+- target: $.paths['/atlas/v1/irp/{irp}/einvoice'].post
+  description: Record reversibility for this write operation.
+  update:
+    x-reversibility:
+      reversal_operation: eas_basic_v1_cancel_invoice
+      reversal_path: PATCH /atlas/v1/irp/{irp}/einvoice/cancel
+      window_published_by_provider: false
+      grade: documented
+- target: $.paths['/atlas/v1/eway/{ewb-provider}/eway-bill'].post
+  description: Record reversibility for E-Way Bill creation.
+  update:
+    x-reversibility:
+      reversal_operation: eas_basic_v1_cancel_ewaybill
+      reversal_path: PATCH /atlas/v1/eway/{ewb-provider}/eway-bill/cancel
+      window_published_by_provider: false
+      grade: documented
+- target: $.paths
+  description: >-
+    Record the contract-wide gaps found during enrichment, as metadata a consumer can act on.
+  update:
+    x-contract-gaps:
+      security_never_applied: >-
+        components.securitySchemes.BearerAuth is declared, but there is no top-level `security`
+        block and no operation-level `security`, so the document never states which of the 65
+        operations require authentication.
+      components_schemas_empty: >-
+        components.schemas is empty; all schemas are inlined, so there is no reusable model layer
+        and no $ref graph.
+      missing_operation_ids: 2 of 65 operations carry no operationId (email and mobile OTP generation).
+      no_error_schemas: >-
+        4xx and 5xx responses carry one-line descriptions and no schema, so an error body shape
+        cannot be bound from the contract. The real envelope is documented at
+        https://docs.enriched-api.vayana.com/components/schema/ and catalogued in
+        errors/vayana-network-problem-types.yml.
+      no_rate_limit_semantics: No 429 response and no rate-limit headers appear anywhere in the document.
+      no_deprecation_flags: >-
+        No operation carries `deprecated: true`, although the EAS documentation deprecates several
+        versions explicitly. The deprecation signal is invisible to any machine reading this contract.

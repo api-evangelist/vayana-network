@@ -1,0 +1,138 @@
+generated: '2026-09-02'
+method: derived
+source: openapi/vayana-network-atlas-openapi.json
+docs:
+- https://docs.enriched-api.vayana.com/components/schema/
+note: >-
+  Derived from the Atlas OpenAPI path structure, path parameters and inline request/response
+  schemas. A caveat that matters for anyone consuming this: the contract declares
+  components.schemas as EMPTY — all 65 operations inline their schemas — so there are no $ref
+  edges to walk. The relationships below were read from identifier-carrying path parameters and
+  from the e-invoice document's own nested structure, not from reference links.
+identifier_conventions:
+  note: >-
+    Vayana's entities are keyed almost entirely on Indian government identifiers rather than on
+    vendor-issued surrogate ids. There are no prefixed object ids (no "inv_", no "cus_"); the
+    primary key of a taxpayer IS its GSTIN. The practical consequence is that an agent needs no
+    id-mapping table, but every key is externally assigned and externally validated.
+  validated_formats:
+  - id: GSTIN
+    regex_published: true
+    source: https://docs.enriched-api.vayana.com/components/schema/#patterns-and-formats
+    upstream: https://developer.gst.gov.in/apiportal/taxpayer/returns
+  - id: IRN
+    format: 64-character hex hash returned by the IRP on e-invoice registration
+  - id: PAN
+    scope: Permanent Account Number, the tax identity behind a GSTIN
+  - id: CIN
+    scope: Corporate Identity Number, keys the MCA company record
+entities:
+- name: Taxpayer
+  key: GSTIN
+  operations: [eas_basic_v1_gstn_search_gstin, eas_basic_v1_gstn_view_returns]
+  relationships:
+  - {type: belongs_to, target: PANHolder, via: pan}
+  - {type: has_many, target: GSTReturn, via: gstin}
+  - {type: has_many, target: EInvoice, via: SellerDtls.Gstin}
+- name: PANHolder
+  key: PAN
+  operations: [rubix_post_kyc_v2_pan, rubix_post_kyc_pan_detailed, rubix_post_kyc_v1_panGstLink, rubix_get_kyc_v1_panGstLink]
+  relationships:
+  - {type: has_many, target: Taxpayer, via: panGstLink}
+  note: The PAN-to-GSTIN lookup is the one operation that makes this a real graph rather than a set of isolated lookups.
+- name: EInvoice
+  key: IRN
+  operations: [eas_basic_v1_generate_invoice, eas_enriched_v1_generate_invoices, eas_basic_v1_cancel_invoice, eas_basic_v1_fetch_invoice_get, eas_enriched_v1_download_invoice_pdf]
+  document_schema: GST e-invoice INV-01, Version 1.1
+  components: [TranDtls, DocDtls, SellerDtls, BuyerDtls, DispDtls, ShipDtls, ItemList, ValDtls, PayDtls, RefDtls, AddlDocDtls, ExpDtls, EwbDtls]
+  relationships:
+  - {type: belongs_to, target: Taxpayer, via: SellerDtls.Gstin}
+  - {type: belongs_to, target: Taxpayer, via: BuyerDtls.Gstin}
+  - {type: has_one, target: EWayBill, via: EwbDtls}
+  - {type: has_many, target: LineItem, via: ItemList}
+  - {type: belongs_to, target: IRP, via: irp path parameter}
+- name: EWayBill
+  key: ewb-number
+  operations: [eas_basic_v1_generate_ewaybill, eas_basic_v1_generate_ewaybill_by_invoice, eas_basic_v1_cancel_ewaybill, eas_basic_v1_fetch_ewaybill, eas_basic_v1_update_ewaybill_partb, eas_basic_v1_update_ewb_transporter, eas_basic_v1_extend_ewaybill_validity, eas_enriched_v1_get_ewaybill_pdf]
+  relationships:
+  - {type: belongs_to, target: EInvoice, via: IRN}
+  - {type: belongs_to, target: Transporter, via: trn-no}
+  - {type: has_many, target: Vehicle, via: multi-vehicle movement group}
+  - {type: has_one, target: ConsolidatedEWayBill, via: tripSheetNo}
+- name: ConsolidatedEWayBill
+  key: tripSheetNo
+  operations: [Consolidate-EWB, Regenerate-Consolidated-EWB, Get-Consolidated-EWB]
+  relationships:
+  - {type: has_many, target: EWayBill, via: tripSheetNo}
+- name: Transporter
+  key: trn-no (TRANSIN)
+  operations: [eas_basic_v1_fetch_ewaybill_transporter_details]
+  relationships:
+  - {type: has_many, target: EWayBill, via: transporter assignment}
+- name: LineItem
+  key: none (ordinal within ItemList)
+  relationships:
+  - {type: belongs_to, target: EInvoice, via: ItemList}
+  - {type: belongs_to, target: HSNCode, via: HsnCd}
+- name: HSNCode
+  key: hsn-code
+  operations: [eas_basic_v1_fetch_ewaybill_hsn_details]
+- name: GSTReturn
+  key: (gstin, fy, return type)
+  types: [GSTR-1, GSTR-2A, GSTR-2B, GSTR-3B, GSTR-6, CMP]
+  operations: [eas_basic_v1_gstn_view_returns]
+  relationships:
+  - {type: belongs_to, target: Taxpayer, via: gstin}
+- name: IMSInvoice
+  key: (gstin, section, status)
+  note: Invoice Management System records a recipient accepts, rejects or keeps pending.
+  operations: [Get-IMS-Invoices, Save-IMS-Action, Reset-IMS-Action, download-ims-invoices]
+  relationships:
+  - {type: belongs_to, target: Taxpayer, via: gstin}
+- name: Task
+  key: task-id (UUID)
+  note: >-
+    The async work handle. Every bulk and verification operation returns one instead of a result.
+    Retention is 7 days.
+  operations: [eas_enriched_v1_task_status, eas_enriched_v1_result_task, eas_enriched_v1_download_task]
+  relationships:
+  - {type: has_many, target: ResultPage, via: page-number}
+- name: Organisation
+  key: organisation-id (UUID)
+  note: The billed entity in Vayana's own SSO, distinct from the Taxpayer it files on behalf of.
+  relationships:
+  - {type: has_many, target: User, via: associatedOrgs}
+  - {type: has_many, target: Service, via: organisation.services}
+- name: User
+  key: userId (UUID)
+  relationships:
+  - {type: belongs_to, target: Organisation, via: associatedOrgs}
+  - {type: has_many, target: AuthToken, via: session}
+- name: IRP
+  key: irp (enum)
+  values: [ni1, ni2]
+  deprecated_values: [nic]
+  note: Invoice Registration Portal instance. The multi-IRP routing Vayana markets as Dual-IRP.
+- name: VerificationSubject
+  note: >-
+    The Verification Suite's read-only entities, each keyed on its own government identifier and
+    each otherwise unconnected to the graph above.
+  subjects:
+  - {entity: AadhaarHolder, key: aadharNumber}
+  - {entity: BankAccount, key: (ifsc, accountNumber)}
+  - {entity: Company, key: CIN, via: MCA}
+  - {entity: UdyamEnterprise, key: udyamNumber}
+  - {entity: UdyogEnterprise, key: udyogNumber}
+  - {entity: EPFMember, key: epfNumber}
+  - {entity: Passport, key: fileNumber}
+  - {entity: DrivingLicence, key: dlNumber}
+  - {entity: VoterID, key: (state, voterIdNumber)}
+  - {entity: Vehicle, key: vehicleNumber}
+  - {entity: Challan, key: (last5DigitsOfChasisNo, vehicleNumber)}
+  - {entity: TANHolder, key: tanNumber}
+  - {entity: FSSAILicence, key: licenseNumber}
+  - {entity: ShopEstablishment, key: (state, registrationNumber)}
+  - {entity: Counterparty, key: counterpartyId}
+gaps:
+- components.schemas is empty; every schema is inlined, so no $ref graph exists to derive from.
+- No subway/ render exists in this repository.

@@ -1,0 +1,211 @@
+generated: '2026-09-02'
+method: searched
+source: https://docs.enriched-api.vayana.com/1s2-integrating/
+docs:
+- https://docs.enriched-api.vayana.com/1s2-integrating/
+- https://docs.enriched-api.vayana.com/components/headers/
+- https://docs.enriched-api.vayana.com/components/schema/
+- https://docs.enriched-api.vayana.com/routes/enriched/long-running-tasks/
+- https://docs.gsp.vayana.com/api-ecosystem/
+cross_links:
+  authentication: authentication/vayana-network-authentication.yml
+  errors: errors/vayana-network-problem-types.yml
+  lifecycle: lifecycle/vayana-network-lifecycle.yml
+  rate_limits: rate-limits/vayana-network-rate-limits.yml
+  sandbox: sandbox/vayana-network-sandbox.yml
+
+auth_style:
+  atlas: HTTP Bearer JWT (components.securitySchemes.BearerAuth)
+  eas: >-
+    Header pair X-FLYNN-N-USER-TOKEN (SSO JWT) + X-FLYNN-N-ORG-ID (billed organisation),
+    plus delegated government-portal credentials per module.
+  gsp_pas: >-
+    Client-built auth token from an RSA keypair registered with Vayana, plus Client-ID / Cust-ID
+    identification and the government portal's own auth token.
+  header_prefix_semantics:
+    X-FLYNN-N-: non-sensitive plain-text value
+    X-FLYNN-S-: sensitive value, AES-encrypted under the per-request REK and base64-encoded
+
+versioning:
+  style: path-segment, and it is doubly versioned
+  detail: >-
+    EAS routes carry TWO independent version segments: Vayana's own service version
+    ({flynn-version}, e.g. v1.0 / v2.0 / v3.0 / v3.1) and the downstream government API version
+    ({gstn-api-version}, {ewb-api-version}, {e-invoice-api-version}). A caller must track both,
+    because Vayana can hold a Flynn version stable while GSTN or NIC moves underneath it.
+  atlas_style: single path segment, /atlas/v1/...
+  availability_matrix: >-
+    Each EAS operation's documentation page publishes a "Flynn Versions" table stating, per version,
+    whether it is Available in Production and in Sandbox. This is an unusually explicit contract:
+    it tells a caller which versions exist per environment rather than only which is current.
+  source: https://docs.enriched-api.vayana.com/1s2-integrating/#module-urls
+
+url_structure:
+  eas: https://{env}.enriched-api.vayana.com/{module}/{sub-module}/{version}
+  eas_env_values: [solo (sandbox), live (production)]
+  eas_module_values: [basic, enriched]
+  eas_sub_module_values: [gstn, ewb, einv]
+  atlas: https://s.api.one.vayana.com/atlas/v1/...
+  sso: https://{domain}/theodore/apis/{version}
+
+error_envelope:
+  shape_v1_v2: '{ "error": { "message", "type", "args" } } | { "data": ... }'
+  shape_v3: '{ "status": "0"|"1", "data", "error": { "message", "type", "args" }, "info", "additionalInfo", "alert" }'
+  note: >-
+    In the v3 envelope the transport status code is NOT the only success signal: a 200 can carry
+    status "0" with a populated error object. An agent must read body.status, not just the HTTP code.
+  catalog: errors/vayana-network-problem-types.yml
+
+pagination:
+  style: none on synchronous operations
+  async_result_paging:
+    endpoint: /enriched/tasks/{flynn-version}/result/{task-id}/page/{page-number}
+    param: page-number
+    range: 0 to the maximum page number reported by the Status API
+    note: >-
+      Paging exists only for long-running task results. The Status API reports how many pages were
+      generated; there is no cursor, no next link and no total-count header.
+  source: https://docs.enriched-api.vayana.com/routes/enriched/long-running-tasks/#pages-api
+
+async_pattern:
+  name: long-running tasks
+  applies_to:
+  - bulk e-invoice generation and cancellation
+  - bulk E-Way Bill generation
+  - bulk GST returns download
+  - bulk taxpayer/GSTIN lookup
+  - the whole Trade Verification Service
+  flow:
+  - Submit the operation; the response returns data.task-id (a UUID) instead of a result.
+  - Poll GET /enriched/tasks/{flynn-version}/status/{task-id} until data.task.status = completed.
+  - Fetch GET .../result/{task-id} (accept application/json) or .../download/{task-id} (accept application/zip).
+  - For large results, page with .../result/{task-id}/page/{page-number}.
+  retention: Task data is accessible for 7 days from generation of the reference token.
+  source: https://docs.enriched-api.vayana.com/routes/enriched/long-running-tasks/
+
+content_negotiation:
+  note: >-
+    The accept header is load-bearing and per-operation, not per-API. Status, Result and Pages
+    accept only application/json; Download accepts only application/zip; PDF verification accepts
+    multipart/form-data on the request. Sending the wrong accept value is a documented failure mode.
+
+request_tracing:
+  supported: false
+  note: >-
+    No request-id, correlation-id or trace header is documented on any of the three programs, and
+    none appears in the Atlas OpenAPI. The only client-side handle on a call is the task-id
+    returned by asynchronous operations, which covers bulk work only.
+
+idempotency:
+  supported: false
+  header: null
+  note: >-
+    No idempotency key, no de-duplication window and no replay semantics are documented anywhere
+    across the Atlas OpenAPI, the EAS docs or the GSP PAS docs, and the strings "idempotent",
+    "duplicate request" and "retry" do not occur in any of them. This matters more than usual here:
+    the write operations mint government records (an IRN, an E-Way Bill number) that carry legal
+    weight, so a retried POST after a timeout has no documented safe outcome. The nearest thing to
+    a guard is downstream: the NIC/IRP portals reject a duplicate document themselves, and Verify
+    E-Invoice refuses duplicate IRNs within a single call. Neither is an idempotency contract.
+
+dry_run_mode:
+  supported: false
+  note: >-
+    No dry-run, preview, simulate or validate-only mode is published. The substitute is the sandbox
+    environment, which is a separate credentialed environment rather than a flag on a live call.
+  see: sandbox/vayana-network-sandbox.yml
+
+rate_limit_signaling:
+  headers_documented: false
+  status_on_exhaustion: undocumented
+  note: No X-RateLimit-*, RateLimit-* or Retry-After header is documented, and no 429 response appears in the Atlas OpenAPI.
+  see: rate-limits/vayana-network-rate-limits.yml
+
+field_expansion:
+  supported: partial
+  mechanism: >-
+    Several enriched operations take a "meta" object rather than query parameters to control what
+    comes back: pdf, json, decryptedSignedInvoice and decryptedSignedQRcode booleans on the
+    verification calls, and tolerance / toleranceInPercentage to control amount-comparison strictness.
+  source: https://docs.enriched-api.vayana.com/routes/enriched/Trade-Verification-Service/
+
+metadata:
+  supported: false
+  note: No customer-defined metadata or tagging field is offered on any resource.
+
+reversibility:
+  grade: documented
+  grade_basis: >-
+    Reversal operations exist and are documented for every meaningful write surface, but Vayana's
+    own documentation states no time window for any of them, so this cannot be graded verified.
+    The governing windows are set by the Indian government portals (GSTN/IRP/NIC) rather than by
+    Vayana, and Vayana does not restate them. No window is asserted here that Vayana does not publish.
+  write_surfaces:
+  - surface: GST e-invoice (IRN) generation
+    forward_operations: [eas_basic_v1_generate_invoice, eas_enriched_v1_generate_invoices]
+    reversal_operation: eas_basic_v1_cancel_invoice
+    reversal_path: PATCH /atlas/v1/irp/{irp}/einvoice/cancel
+    bulk_reversal: 'EAS: POST /enriched/einv/{flynn-version}/{irp}/invoices/cancel'
+    reversal_inputs: >-
+      Cancel reason is an enumerated code documented in the contract: 1 = Duplicate,
+      2 = Data entry mistake, 3 = Order Cancelled, 4 = Others.
+    window_stated_by_vayana: false
+    window: null
+    note: >-
+      Cancellation is a real reversal (it voids the IRN), not a compensating entry. Vayana documents
+      the operation and the reason codes but not the deadline; a caller must take the cancellation
+      window from the IRP's own rules.
+    docs: https://docs.enriched-api.vayana.com/routes/basic/einv/apis/Cancel-IRN/0-cancel-irn-vthree-oh/
+  - surface: E-Way Bill generation
+    forward_operations: [eas_basic_v1_generate_ewaybill, eas_basic_v1_generate_ewaybill_by_invoice, eas_enriched_v1_generate_bulk_ewaybill_by_invoice]
+    reversal_operation: eas_basic_v1_cancel_ewaybill
+    reversal_path: PATCH /atlas/v1/eway/{ewb-provider}/eway-bill/cancel
+    window_stated_by_vayana: false
+    window: null
+    docs: https://docs.enriched-api.vayana.com/routes/basic/ewb/apis/Cancel-EWB/0-cancel-ewb-vthree-oh/
+  - surface: E-Way Bill received from a counterparty
+    forward_operations: []
+    reversal_operation: rejectEwayBill (EAS POST .../ewayapi/reject, v3.0)
+    reversal_path: POST /basic/eway/{flynn-version}/{ewb_provider}/{ewb-api-version}/ewayapi/reject
+    window_stated_by_vayana: false
+    window: null
+    note: Reject is the counterparty-side refusal of a bill someone else raised against you.
+    docs: https://docs.enriched-api.vayana.com/routes/basic/ewb/apis/Reject-EWB/0-reject-ewb-vthree-oh/
+  - surface: E-Way Bill validity
+    reversal_operation: eas_basic_v1_extend_ewaybill_validity
+    reversal_path: PATCH /atlas/v1/eway/{ewb-provider}/eway-bill/extend-validity
+    kind: extension rather than reversal
+    window_stated_by_vayana: false
+    window: null
+    docs: https://docs.enriched-api.vayana.com/routes/basic/ewb/apis/Extend-EWB-Validity/0-extend-validity-vthree-oh/
+  - surface: E-Way Bill closure
+    reversal_operation: closeEwayBill
+    reversal_path: POST /basic/eway/{flynn-version}/{ewb_provider}/{ewb-api-version}/ewayapi/close
+    availability: sandbox only
+    window_stated_by_vayana: false
+    window: null
+    note: >-
+      Vayana explicitly flags this operation as available only in the sandbox environment. An agent
+      that rehearses a close in sandbox cannot perform the same action in production.
+    docs: https://docs.enriched-api.vayana.com/routes/basic/ewb/apis/Close-EWB/0-close-ewb-vone-oh/
+  - surface: IMS (Invoice Management System) invoice action
+    forward_operations: [Save IMS Action (PUT .../returns/ims/SAVE), ims-invoice-status-update]
+    reversal_operation: Reset IMS Action (PUT .../returns/ims/RESETIMS), ims-invoice-status-reset
+    window_stated_by_vayana: false
+    window: null
+    note: A dedicated reset operation exists to undo an IMS accept/reject/pending action.
+    docs: https://docs.enriched-api.vayana.com/routes/basic/gstn/apis/returns/IMS/IMS%20-%20Reset%20IMS%20Action/Reset-IMS-Action-vone-oh/
+  - surface: authentication session
+    forward_operations: [login]
+    reversal_operation: logout
+    reversal_path: POST /theodore/apis/v1/logout
+    window_stated_by_vayana: true
+    window: >-
+      A token may be refreshed until the hard session expiry, which is 6x the token duration
+      (2 hours for a 20-minute token, 36 hours for a 360-minute token). After that, refresh is
+      refused and re-authentication is required.
+    docs: https://docs.enriched-api.vayana.com/1s1-onboarding/#generate-auth-token
+  read_only_surfaces:
+  - The entire Verification Suite (PAN, GSTIN, Aadhaar, MCA, Udyam, EPF, passport, driving licence,
+    voter ID, vehicle, challan, TAN, FSSAI, shop & establishment, bank account) is read-only.
+    Reversibility is `na` for those 30 operations.

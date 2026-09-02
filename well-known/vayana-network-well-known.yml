@@ -1,0 +1,273 @@
+generated: '2026-09-02'
+method: probed
+source: direct HTTPS probes of /.well-known/* on every Vayana docs, marketing and API host, 2026-09-02
+documents_found: 0
+note: 'Every /.well-known/ path returned a miss on every Vayana host. The two miss modes differ and both
+  are recorded: the documentation and marketing hosts answer a genuine 404, while every API host (s.api.one.vayana.com,
+  api.gsp.vayana.com, live/solo.enriched-api.vayana.com and yoda.api.vayanagsp.in) answers 503 Service
+  Temporarily Unavailable to ANY unauthenticated GET, including the host root. That 503 is a blanket edge
+  policy on Vayana''s API tier, not an outage: the same hosts serve authenticated traffic and are the
+  documented production and sandbox bases. It does mean anonymous discovery against the API hosts is impossible,
+  so a 404 could not be distinguished from a served document there even if one existed. No WellKnown or
+  SecurityTxt pointer is wired into apis.yml, because nothing was served.'
+hosts:
+- host: www.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: atlas.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: s.docs.atlas.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: docs.gsp.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: docs.enriched-api.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: s.api.one.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 503
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 503
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 503
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 503
+    file: null
+  - path: /.well-known/api-catalog
+    status: 503
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 503
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 503
+    file: null
+  - path: /.well-known/agent.json
+    status: 503
+    file: null
+- host: api.gsp.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 503
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 503
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 503
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 503
+    file: null
+  - path: /.well-known/api-catalog
+    status: 503
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 503
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 503
+    file: null
+  - path: /.well-known/agent.json
+    status: 503
+    file: null
+- host: live.enriched-api.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 503
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 503
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 503
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 503
+    file: null
+  - path: /.well-known/api-catalog
+    status: 503
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 503
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 503
+    file: null
+  - path: /.well-known/agent.json
+    status: 503
+    file: null
+- host: solo.enriched-api.vayana.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 503
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 503
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 503
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 503
+    file: null
+  - path: /.well-known/api-catalog
+    status: 503
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 503
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 503
+    file: null
+  - path: /.well-known/agent.json
+    status: 503
+    file: null
+- host: yoda.api.vayanagsp.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 503
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 503
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 503
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 503
+    file: null
+  - path: /.well-known/api-catalog
+    status: 503
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 503
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 503
+    file: null
+  - path: /.well-known/agent.json
+    status: 503
+    file: null

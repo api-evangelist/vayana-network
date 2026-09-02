@@ -1,0 +1,80 @@
+generated: '2026-09-02'
+method: searched
+source: https://github.com/Vayana
+registries_searched:
+- registry: npm
+  query: https://registry.npmjs.org/-/v1/search?text=vayana&size=20
+  result: 0 packages
+- registry: PyPI
+  query: https://pypi.org/pypi/vayana/json
+  result: 404 Not Found
+- registry: RubyGems
+  query: https://rubygems.org/api/v1/search.json?query=vayana
+  result: empty array
+- registry: Maven Central
+  query: https://search.maven.org/solrsearch/select?q=vayana
+  result: numFound 0
+- registry: Packagist
+  query: https://packagist.org/search.json?q=vayana
+  result: no Vayana-authored package (only unrelated "voyanara/*" fuzzy matches)
+- registry: GitHub organization
+  query: https://api.github.com/orgs/Vayana/repos
+  result: >-
+    21 repositories, all forks of upstream open-source projects (celery, kombu, boto, ansible,
+    xlrd, pdfminer, m2crypto, Exposed, nanoid, slog-syslog, hugo-theme-docdock and similar).
+    None is a Vayana API client, and the most recently pushed first-party-looking repo is a Go
+    NanoID fork. No SDK, no CLI, no generated client.
+package_count: 0
+official_sdk_count: 0
+packages: []
+note: >-
+  Vayana publishes no client library in any package registry and none in its own GitHub
+  organization. This is a genuine zero, verified against six registries rather than inferred.
+  What Vayana offers instead of an SDK is copy-paste sample code for the single hardest part of
+  integration — constructing the auth token and the RSA/AES encryption envelope — in C#, Java and
+  PHP, published as documentation pages rather than as installable artifacts.
+sample_code:
+- language: C#
+  scope: Vayana GSP auth-token generation
+  url: https://docs.gsp.vayana.com/sample-codes/sample-code-csharp/
+  distribution: documentation page, not a package
+- language: Java
+  scope: Vayana GSP auth-token generation
+  url: https://docs.gsp.vayana.com/sample-codes/sample-code-java/
+  distribution: documentation page, not a package
+- language: PHP
+  scope: Vayana GSP auth-token generation
+  url: https://docs.gsp.vayana.com/sample-codes/sample-code-php/
+  distribution: documentation page, not a package
+- language: pseudocode
+  scope: REK generation and AES/RSA envelope encryption
+  url: https://docs.enriched-api.vayana.com/1s2-integrating/
+  distribution: documentation page, not a package
+other_distributions:
+- name: Vayana SAP Plugin
+  kind: ERP connector
+  url: https://atlas.vayana.com/sap-plugin/
+  registry: null
+  version: null
+  published: null
+  official: true
+  note: >-
+    Advertised as a first-party SAP integration on the Atlas marketplace. No version, release date,
+    download link or registry listing is published, so currency cannot be established. Recorded with
+    null version and null published date: checked, nothing to record.
+- name: server public keys and domain certificates
+  kind: cryptographic material required for integration
+  url: https://docs.enriched-api.vayana.com/3-downloads/
+  registry: null
+  version: null
+  published: null
+  official: true
+  note: >-
+    Not a package, but the only versioned first-party download Vayana ships. Certificate expiries
+    are published (production 2027-02-23, sandbox 2026-11-28), which is the closest thing in this
+    provider's surface to a dated release signal.
+decay_signal: >-
+  No SDK exists, so the usual abandonment signal (a client library whose last release predates the
+  API it wraps) is unavailable here. The absence itself is the finding: an integrator must
+  hand-implement RSA/AES envelope encryption from documentation pseudocode in whatever language
+  they use, which is precisely the work a first-party SDK exists to remove.

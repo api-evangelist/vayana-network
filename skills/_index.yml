@@ -1,0 +1,30 @@
+generated: '2026-09-02'
+method: generated
+source: openapi/vayana-network-atlas-openapi.json
+note: >-
+  Four packaged Agent Skills covering Vayana Atlas's marquee flows. Every operationId referenced in
+  these skills was verified against the published contract before the skill was written; none is
+  invented. Where the provider does not publish something an agent needs — a cancellation window,
+  an idempotency key, a production host — the skill says so explicitly rather than filling the gap.
+api: vayana-network-atlas
+skills:
+- name: vayana-network-issue-gst-einvoice
+  file: skills/vayana-network-issue-gst-einvoice.md
+  description: Register a GST e-invoice with an IRP, retrieve the signed invoice and QR code, and cancel it if wrong.
+  surface: write
+  operations: [login, eas_basic_v1_gstn_search_gstin, eas_basic_v1_generate_invoice, eas_basic_v1_fetch_invoice_get, eas_enriched_v1_download_invoice_pdf, eas_basic_v1_cancel_invoice, logout]
+- name: vayana-network-move-goods-eway-bill
+  file: skills/vayana-network-move-goods-eway-bill.md
+  description: Generate an E-Way Bill, update Part B and transporter in transit, extend validity, cancel or reject.
+  surface: write
+  operations: [login, eas_basic_v1_generate_ewaybill, eas_basic_v1_generate_ewaybill_by_invoice, eas_basic_v1_fetch_ewaybill, eas_basic_v1_update_ewaybill_partb, eas_basic_v1_update_ewb_transporter, eas_basic_v1_extend_ewaybill_validity, eas_basic_v1_cancel_ewaybill, eas_enriched_v1_get_ewaybill_pdf, eas_basic_v1_fetch_ewaybill_error_list]
+- name: vayana-network-verify-counterparty
+  file: skills/vayana-network-verify-counterparty.md
+  description: Verify an Indian business counterparty — PAN to GSTIN, GSTIN status, MCA, Udyam, bank account, business profile report.
+  surface: read-only
+  operations: [login, rubix_post_kyc_v2_pan, rubix_post_kyc_pan_detailed, rubix_post_kyc_v1_panGstLink, rubix_get_kyc_v1_panGstLink, eas_basic_v1_gstn_search_gstin, rubix_post_kyc_v2_mca, rubix_get_kyc_v1_mcaInstant, rubix_post_kyc_v1_udyam, rubix_post_kyc_bankAccount, rubix_post_kyc_v1_indian_search, rubix_post_kyc_v1_indian_instantReport, rubix_post_kyc_v1_indian_report_pdf]
+- name: vayana-network-bulk-and-async-tasks
+  file: skills/vayana-network-bulk-and-async-tasks.md
+  description: Run bulk operations and collect results correctly via the long-running task pattern.
+  surface: write
+  operations: [login, eas_enriched_v1_generate_invoices, eas_enriched_v1_generate_bulk_ewaybill_by_invoice, eas_enriched_v1_gcs_generate, eas_enriched_v1_task_status, eas_enriched_v1_result_task, eas_enriched_v1_download_task]

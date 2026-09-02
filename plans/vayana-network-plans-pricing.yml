@@ -1,0 +1,34 @@
+generated: '2026-09-02'
+method: searched
+source: https://atlas.vayana.com/
+searched:
+- https://atlas.vayana.com/
+- https://www.vayana.com/gsp/
+- https://www.vayana.com/
+- https://docs.enriched-api.vayana.com/1s1-onboarding/
+- https://docs.enriched-api.vayana.com/
+- https://docs.gsp.vayana.com/
+plan_count: 0
+currency: null
+pricing_model: contact-sales
+note: >-
+  Vayana publishes no price list, no tiers and no rate card on any of its properties. Every
+  commercial path is a contact form: the Atlas marketplace routes to
+  https://atlas.vayana.com/contact-us/, and the GSP product page routes to an enquiry form.
+  Two facts are published that bear on cost, and they are recorded because they are the only
+  concrete billing signals in the developer surface: the sandbox environment
+  (solo.enriched-api.vayana.com) is a test system against GSTN Sandbox / NIC pre-prod, while the
+  production environment (live.enriched-api.vayana.com) "uses live GSTN infrastructure with all
+  API calls being chargeable" — so billing is per API call, metered in production only; and
+  Vayana ships a first-party metering endpoint, Get Api Usage, that returns a caller's own usage
+  report for any 90-day span within the last 18 months, optionally emailed as CSV. A buyer can
+  therefore measure consumption precisely but cannot price it without talking to sales.
+billing_signals:
+- signal: per-call charging in production
+  detail: Production calls are chargeable; sandbox calls are not.
+  source: https://docs.enriched-api.vayana.com/1s2-integrating/
+- signal: self-service usage metering
+  operation: GET /enriched/{flynn-version}/api-usage/report?from-date={fromDate}&to-date={toDate}&email={email}
+  detail: Max 90 days per call, 18 months of history, optional CSV delivery to the logged-in email.
+  source: https://docs.enriched-api.vayana.com/routes/enriched/Get-Api-Usage/get-api-usage-vone-oh/
+plans: []

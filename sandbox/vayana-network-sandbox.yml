@@ -1,0 +1,107 @@
+generated: '2026-09-02'
+method: searched
+source: https://docs.enriched-api.vayana.com/1s2-integrating/
+docs:
+- https://docs.enriched-api.vayana.com/1s2-integrating/
+- https://docs.enriched-api.vayana.com/1s1-onboarding/
+- https://docs.enriched-api.vayana.com/3-downloads/
+- https://docs.gsp.vayana.com/server-instances/
+available: true
+self_service: false
+note: >-
+  Vayana ships a full parallel sandbox for all three programs, and it is a genuinely separate
+  environment rather than a test flag: sandbox calls go to the GSTN Sandbox and NIC pre-production
+  systems, use separate credentials, separate public keys and separate domain certificates, and are
+  not chargeable. Access is not self-service — sandbox credentials and the test user data are
+  "issued to you" by Vayana or by GSTN/NIC, so a developer cannot start calling without an
+  onboarding conversation.
+environments:
+- program: Vayana Atlas
+  environment: sandbox
+  base_url: https://s.api.one.vayana.com
+  note: The only server published in the Atlas OpenAPI servers[] block, labelled "Sandbox Server". No production host is declared in the contract.
+  source: openapi/vayana-network-atlas-openapi.json
+- program: Enriched API Service (EAS)
+  environment: sandbox
+  base_url: https://solo.enriched-api.vayana.com
+  chargeable: false
+- program: Enriched API Service (EAS)
+  environment: production
+  base_url: https://live.enriched-api.vayana.com
+  chargeable: true
+  note: Uses live GSTN infrastructure; all API calls are chargeable.
+- program: Vayana SSO (theodore)
+  environment: sandbox
+  base_url: https://sandbox.services.vayananet.com/theodore/apis/v1
+  health: https://sandbox.services.vayananet.com/theodore/apis/health
+  note: >-
+    The sandbox SSO runs on a different registrable domain (vayananet.com) from the production SSO
+    (vayana.com). Worth knowing before writing an allowlist.
+- program: Vayana SSO (theodore)
+  environment: production
+  base_url: https://services.vayana.com/theodore/apis/v1
+  health: https://services.vayana.com/theodore/apis/health
+- program: GSP Pass-Through (PAS)
+  environment: sandbox
+  base_url: https://yoda.api.vayanagsp.in
+  endpoints:
+    ping: https://yoda.api.vayanagsp.in/gus/ping
+    returns: https://yoda.api.vayanagsp.in/gus/taxpayerapi
+    eway_bill: https://yoda.api.vayanagsp.in/gus/eway/ew1/ewaybillapi
+    einvoice: https://yoda.api.vayanagsp.in/gus/irp/ni1/eicore/
+  note: >-
+    A multi-server high-availability cluster, updated less frequently than the development refresh
+    environment and described by Vayana as the more stable of the two test targets. On a separate
+    registrable domain (vayanagsp.in) from production.
+- program: GSP Pass-Through (PAS)
+  environment: production
+  base_url: https://api.gsp.vayana.com
+  endpoints:
+    ping: https://api.gsp.vayana.com/gus/ping
+    returns: https://api.gsp.vayana.com/gus/taxpayerapi
+    eway_bill: https://api.gsp.vayana.com/gus/eway/ew1
+    einvoice: https://api.gsp.vayana.com/gus/irp/ni1/eicore
+test_credentials:
+  self_service: false
+  mechanism: >-
+    Test user data is issued by Vayana, or the caller supplies their own GSTN Sandbox / NIC
+    pre-production credentials issued directly by GSTN/NIC.
+  published_test_values: false
+  note: >-
+    No public test GSTIN, test IRN or shared demo credential is published. Sample values appear in
+    request examples (for instance GSTIN 27AAAPI3182M002 and IRP username test_27_003) but Vayana
+    presents these as illustrations of format, not as usable shared test accounts, and they are
+    reproduced nowhere in this repository as if they were credentials.
+separate_keys:
+  public_keys: >-
+    Sandbox and production publish DIFFERENT RSA public keys, and the Authentication Service and
+    the EAS publish different keys again — four keys in total. Using the wrong one produces
+    err-unable-to-decrypt-message-with-key (HTTP 500).
+  certificates:
+    production_expiry: '2027-02-23'
+    sandbox_expiry: '2026-11-28'
+  source: https://docs.enriched-api.vayana.com/3-downloads/
+connectivity_test_operations:
+- path: /ping
+  purpose: unauthenticated liveness check
+- path: /authenticate
+  purpose: verify the client's authentication logic end to end
+- path: /authenticate-with-secrets
+  purpose: >-
+    verify the client's RSA/AES encryption and decryption logic. Echoes back an encrypted
+    client-message the caller must decrypt with its own REK. This is a genuinely well-designed
+    onboarding affordance for the hardest part of this integration.
+  source: https://docs.enriched-api.vayana.com/routes/ping/with-sensitive-info/
+parity_gaps:
+- operation: closeEwayBill
+  detail: Documented as available only in the sandbox environment, with no production counterpart.
+  source: https://docs.enriched-api.vayana.com/routes/basic/ewb/apis/Close-EWB/0-close-ewb-vone-oh/
+- detail: >-
+    Per-operation "Flynn Versions" tables state Production and Sandbox availability independently,
+    so version parity between environments must be checked operation by operation.
+time_simulation:
+  supported: false
+  note: No test clocks or time-travel fixtures are published.
+fixtures_and_triggers:
+  supported: false
+  note: No fixture generator or scenario-trigger tooling is published.
