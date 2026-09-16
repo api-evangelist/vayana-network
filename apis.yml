@@ -36,43 +36,16 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 apis:
-- aid: vayana-network:vayana-network-atlas
-  name: Vayana Atlas API
-  description: 'Vayana Atlas is Vayana''s API marketplace for trade and compliance. The published OpenAPI
-    3.1 contract covers 65 operations across four suites: a Verification Suite (PAN, detailed PAN, PAN-GST
-    link, GSTIN, Aadhaar, consent-based Aadhaar, bank account, MCA/CIN, MCA Instant, Udyam, Udyog, EPF,
-    passport, driving licence, voter ID, vehicle number, challan, TAN, FSSAI certificate, shop & establishment,
-    counterparty search and business profile reports), a Compliance Suite (GST e-invoice generation, bulk
-    generation, cancellation, retrieval and PDF download; E-Way Bill generation, cancellation, Part-B
-    update, transporter update, validity extension, multi-vehicle movement and consolidated reporting;
-    GST returns view-and-track), a Support Suite (long-running task status, result and download) and an
-    Authorization Suite (login, token refresh, logout, email and mobile OTP).'
-  humanURL: https://atlas.vayana.com/
-  baseURL: https://s.api.one.vayana.com
-  tags:
-  - Verification
-  - Compliance
-  - E-Invoicing
-  - E-Way Bill
-  - GST
-  - KYC
-  properties:
-  - type: OpenAPI
-    url: openapi/vayana-network-atlas-openapi.json
-  - type: Documentation
-    url: https://s.docs.atlas.vayana.com/
-  - type: Overlay
-    url: overlays/vayana-network-atlas-overlay.yaml
 - aid: vayana-network:vayana-network-enriched-api-service
   name: Vayana Enriched API Service (EAS)
-  description: The Enriched API Service ("Flynn") is Vayana GSP's higher-level API suite over the three
-    GSTN peers — the GST Returns portal, the NIC E-Way Bill portal and the IRP e-invoicing portal. "Basic"
-    routes are thin wrappers that handle auth-token management and payload encryption/decryption only;
-    "enriched" routes add bulk processing, PDF and JSON generation, email notification, file download
-    and asynchronous long-running task handling. Routes follow the pattern /{module}/{sub-module}/{version}
-    where module is basic or enriched and sub-module is gstn, ewb or einv. A Trade Verification Service
-    verifies e-invoices, signed QR codes, scanned QR codes, e-invoice PDFs and invoices against their
-    E-Way Bills.
+  description: >-
+    The Enriched API Service ("Flynn") is Vayana GSP's higher-level API suite over the three GSTN peers
+    — the GST Returns portal, the NIC E-Way Bill portal and the IRP e-invoicing portal. "Basic" routes
+    are thin wrappers that handle auth-token management and payload encryption/decryption only; "enriched"
+    routes add bulk processing, PDF and JSON generation, email notification, file download and asynchronous
+    long-running task handling. Routes follow the pattern /{module}/{sub-module}/{version} where module
+    is basic or enriched and sub-module is gstn, ewb or einv. A Trade Verification Service verifies e-invoices,
+    signed QR codes, scanned QR codes, e-invoice PDFs and invoices against their E-Way Bills.
   humanURL: https://docs.enriched-api.vayana.com/
   baseURL: https://live.enriched-api.vayana.com
   tags:
@@ -90,13 +63,14 @@ apis:
     url: sandbox/vayana-network-sandbox.yml
 - aid: vayana-network:vayana-network-gsp-pass-through
   name: Vayana GSP Pass-Through API Service (PAS)
-  description: Vayana GSP's Pass-Through API Service is the thin, last-mile gateway to the GSTN and NIC
-    ecosystems for integrators who want to speak the government contracts directly. The caller populates
-    the government headers, builds and encrypts the payload, wraps it in an envelope and decrypts the
-    response; Vayana supplies the authorized GSP routing (GSP code "vay"), keypair-based auth-token construction,
-    and Client-ID/Cust-ID identification. Documented calls cover GSTN OTP request, GSTN authentication,
-    GSTR-1 B2B save and get, search taxpayer, E-Way Bill authentication, generate and get, and e-invoice
-    authentication, generate and get.
+  description: >-
+    Vayana GSP's Pass-Through API Service is the thin, last-mile gateway to the GSTN and NIC ecosystems
+    for integrators who want to speak the government contracts directly. The caller populates the government
+    headers, builds and encrypts the payload, wraps it in an envelope and decrypts the response; Vayana
+    supplies the authorized GSP routing (GSP code "vay"), keypair-based auth-token construction, and Client-ID/Cust-ID
+    identification. Documented calls cover GSTN OTP request, GSTN authentication, GSTR-1 B2B save and
+    get, search taxpayer, E-Way Bill authentication, generate and get, and e-invoice authentication, generate
+    and get.
   humanURL: https://docs.gsp.vayana.com/
   baseURL: https://api.gsp.vayana.com
   tags:
@@ -109,7 +83,58 @@ apis:
     url: https://docs.gsp.vayana.com/
   - type: APIReference
     url: https://docs.gsp.vayana.com/api-ecosystem/
+- aid: vayana-network:vayana-network-authorization-suite-api
+  name: Vayana Network Authorization Suite API
+  description: >-
+    The Authorization Suite API from Vayana Network — 4 operation(s) for authorization suite.
+  humanURL: https://atlas.vayana.com/
+  baseURL: https://s.api.one.vayana.com
+  tags:
+  - Authorization Suite
+  properties:
+  - type: OpenAPI
+    url: openapi/vayana-network-authorization-suite-api-openapi.yml
+  - type: Documentation
+    url: https://s.docs.atlas.vayana.com/
+- aid: vayana-network:vayana-network-compliance-suite-api
+  name: Vayana Network Compliance Suite API
+  description: The Compliance Suite API from Vayana Network — 27 operation(s) for compliance suite.
+  humanURL: https://atlas.vayana.com/
+  baseURL: https://s.api.one.vayana.com
+  tags:
+  - Compliance Suite
+  properties:
+  - type: OpenAPI
+    url: openapi/vayana-network-compliance-suite-api-openapi.yml
+  - type: Documentation
+    url: https://s.docs.atlas.vayana.com/
+- aid: vayana-network:vayana-network-support-suite-api
+  name: Vayana Network Support Suite API
+  description: The Support Suite API from Vayana Network — 3 operation(s) for support suite.
+  humanURL: https://atlas.vayana.com/
+  baseURL: https://s.api.one.vayana.com
+  tags:
+  - Support Suite
+  properties:
+  - type: OpenAPI
+    url: openapi/vayana-network-support-suite-api-openapi.yml
+  - type: Documentation
+    url: https://s.docs.atlas.vayana.com/
+- aid: vayana-network:vayana-network-verification-suite-api
+  name: Vayana Network Verification Suite API
+  description: The Verification Suite API from Vayana Network — 30 operation(s) for verification suite.
+  humanURL: https://atlas.vayana.com/
+  baseURL: https://s.api.one.vayana.com
+  tags:
+  - Verification Suite
+  properties:
+  - type: OpenAPI
+    url: openapi/vayana-network-verification-suite-api-openapi.yml
+  - type: Documentation
+    url: https://s.docs.atlas.vayana.com/
 common:
+- type: Overlay
+  url: overlays/vayana-network-atlas-overlay.yaml
 - type: Website
   url: https://www.vayana.com/
 - type: DeveloperPortal
