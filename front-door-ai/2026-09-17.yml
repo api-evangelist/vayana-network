@@ -1,0 +1,27 @@
+# Front Door AI Index — vayana-network — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: vayana-network
+  lexicon_version: '1.0'
+  probed_at: '2026-09-17'
+  host: www.vayana.com
+  final_host: www.vayana.com
+  ownership: own
+  owner: vayana-network
+  shares_host_with: null
+  inherited_from: null
+  verdict: scored
+  score: 4
+  host_score: 4
+  density: 4.36
+  words: 918
+  tiers:
+    agentic: 0
+    core: 4
+    model: 0
+  ambiguous: 9
+  top_terms:
+    automation: 6
+    AI: 4
+    intelligence: 3

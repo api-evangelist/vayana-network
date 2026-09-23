@@ -1,0 +1,309 @@
+openapi: 3.2.0
+info:
+  title: Vayana API Documentation Authorization Suite API
+  version: 1.0.0
+  description: To integrate these APIs please follow documentation
+servers:
+- url: https://s.api.one.vayana.com
+  description: Sandbox Server
+tags:
+- name: Authorization Suite
+paths:
+  /theodore/apis/v1/authtokens:
+    post:
+      tags:
+      - Authorization Suite
+      summary: Login by email or mobile
+      description: Returns a JWT authtoken which can be used to make authenticated calls. Token validity period (in minutes) can be specified using `tokenDurationInMins` in the request body, which is a non-mandatory param. Default token duration, if not specified, is 20 mins. Max duration restricted to 360 mins (6 hours). So if one specifies tokenDurationInMins = 370; the token will be created with expiry of 360 mins. Hard expiry of the session, once a token is issued to the user, is set to 6x of the token duration. For ex, If token duration is of 20 mins, hard expiry will be 120 mins (2 hours). If token duration is of 360 mins, hard expiry will be 2160 mins (36 hours). After hard expiry, tokens cannot be refreshed. User will have to re-authenticate. v1 api ll generate the token without factor number claims in the token payload, thus not disrupting any current functionality/integration but v2 of this api generate the token with factor number (fn) claim in the token payload
+      operationId: login
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1authtokens/put/responses/200/content/application~1json/schema'
+        '400':
+          description: client request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1logout/post/responses/400/content/application~1json/schema'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1logout/post/responses/400/content/application~1json/schema'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - handle
+              - handleType
+              properties:
+                handle:
+                  type: string
+                handleType:
+                  type: string
+                  enum:
+                  - email
+                  - mobile
+                  example: email
+                  description: If the handle type is Mobile Number, you are expected to provide mobile number with country code
+                password:
+                  type: string
+                  example: password
+                otp:
+                  type: string
+                  example: '123456'
+                  description: You can get the otp through /users/email/otps or /users/mobile/otps
+                tokenDurationInMins:
+                  type: integer
+                  example: 20
+                  description: This is a non-mandatory field to mention token validity period in minutes. It will be set to 20 mins by default, if not set. Maximum value can be 360 mins.
+        description: handle is either email-id or mobile number. Either of the password and OTP are mandatory to login
+    put:
+      tags:
+      - Authorization Suite
+      summary: Refresh token
+      description: Returns a JWT authtoken which can be used to make authenticated calls. If token generated using v1 AuthTokens APIs is used in auth header, the response token will not contain factor number claim & if token generated using v2 AuthTokens APIs is used, the response token will contain factor number(fn) claim.
+      operationId: refresh_token
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      userId:
+                        type: string
+                        format: uuid
+                      expiry:
+                        type: number
+                        description: This is epoch timestamp in milliseconds
+                      email:
+                        type: string
+                      mobile:
+                        type: string
+                        nullable: true
+                      givenName:
+                        type: string
+                      lastName:
+                        type: string
+                      state:
+                        type: string
+                      verificationStatus:
+                        type: string
+                        enum:
+                        - None
+                        - Email
+                        - Mobile
+                        - Both
+                        description: Indicates if email, mobile or both have been verified through OTP
+                      passwordLastModified:
+                        type: number
+                        nullable: true
+                        description: This is epoch timestamp in milliseconds
+                      associatedOrgs:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            organisation:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                taxIdentifier:
+                                  type: string
+                                taxIdentifierType:
+                                  type: string
+                                  enum:
+                                  - PAN
+                                  - TIN
+                                  example: PAN
+                                country:
+                                  type: string
+                                services:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      serviceCode:
+                                        type: string
+                                      serviceName:
+                                        type: string
+                            userAccessInfo:
+                              type: object
+                              properties:
+                                primary:
+                                  type: boolean
+                                admin:
+                                  type: boolean
+                      timezone:
+                        type: string
+                      locale:
+                        type: string
+                      createdOn:
+                        type: number
+                        description: This is epoch timestamp in milliseconds
+                      lastUpdated:
+                        type: number
+                        nullable: true
+                        description: This is epoch timestamp in milliseconds
+        '403':
+          description: Unauthorized. The token in the header is invalid or expired
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1logout/post/responses/400/content/application~1json/schema'
+  /theodore/apis/v1/users/email/otps:
+    post:
+      tags:
+      - Authorization Suite
+      summary: Email OTP generation
+      description: To generate and send OTP to given email id. This otp can be used for logging in, creating user with the given email id and updating email id.
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: client request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1logout/post/responses/400/content/application~1json/schema'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1logout/post/responses/400/content/application~1json/schema'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                otpPurposeType:
+                  type: string
+                  enum:
+                  - SignupOTP
+                  - UpdateHandleOTP
+                  - LoginOTP
+                  example: SignupOTP
+                  description: SignupOTP - For user creation with this email ID. UpdateHandleOTP - For updating email id. OTP will be sent to new email id.
+        description: 'User needs to provide otpPurposeType, which can have three values: LoginOTP, SignupOTP, UpdateHandleOTP'
+      operationId: postTheodoreApisV1UsersEmailOtps
+      x-operation-id-source: derived
+  /theodore/apis/v1/users/mobile/otps:
+    post:
+      tags:
+      - Authorization Suite
+      summary: Mobile OTP generation
+      description: To generate and send OTP to given mobile number. This otp can be used for logging in, creating user with the given mobile number and updating mobile number.
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: client request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1logout/post/responses/400/content/application~1json/schema'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1logout/post/responses/400/content/application~1json/schema'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: string
+                  example: +91-9111111111
+                  description: Mobile number should be provided with country code, Currently Only Indian Mobile Numbers can avail mobile otp service.
+                otpPurposeType:
+                  type: string
+                  enum:
+                  - SignupOTP
+                  - UpdateHandleOTP
+                  - LoginOTP
+                  example: SignupOTP
+                  description: SignupOTP - For user creation with this mobile number. UpdateHandleOTP - For updating email id. OTP will be sent to new mobile number.
+        description: 'User needs to provide otpPurposeType, which can have three values: LoginOTP, SignupOTP, UpdateHandleOTP'
+      operationId: postTheodoreApisV1UsersMobileOtps
+      x-operation-id-source: derived
+  /theodore/apis/v1/logout:
+    post:
+      tags:
+      - Authorization Suite
+      summary: logout from the application
+      operationId: logout
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: client request error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    required:
+                    - message
+                    - type
+                    properties:
+                      message:
+                        type: string
+                      args:
+                        type: object
+                      type:
+                        type: string
+                        example: ClientError
+                example:
+                  error:
+                    message: err-issue-with-parameter
+                    args:
+                      parameter-name: some-parameter
+        '403':
+          description: Unauthorized. The token in the header is invalid or expired
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1theodore~1apis~1v1~1logout/post/responses/400/content/application~1json/schema'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer

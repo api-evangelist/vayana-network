@@ -1,0 +1,51 @@
+{
+  "provider": "vayana-network",
+  "sources": [
+    "_original/vayana-network-atlas-openapi.json"
+  ],
+  "outputs": [
+    "vayana-network-authorization-suite-api-openapi.yml",
+    "vayana-network-compliance-suite-api-openapi.yml",
+    "vayana-network-support-suite-api-openapi.yml",
+    "vayana-network-verification-suite-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1epf-async~1%7BepfNumber%7D/get/responses/200/content/application~1json/schema/properties/results",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1eway~1%7Bewb-provider%7D~1eway-bill/post/parameters/3",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1eway~1%7Bewb-provider%7D~1eway-bill/post/parameters/4",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1eway~1%7Bewb-provider%7D~1eway-bill/post/parameters/5",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1eway~1%7Bewb-provider%7D~1eway-bill/post/parameters/6",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1eway~1%7Bewb-provider%7D~1eway-bill/post/parameters/7",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1eway~1%7Bewb-provider%7D~1eway-bill~1transporter-by-date/get/responses/200/content/application~1json/schema/properties/data",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1gstin~1%7Bgstin%7D/get/parameters/3",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice/post/parameters/3",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice/post/parameters/4",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice/post/parameters/5",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice/post/parameters/6",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice/post/parameters/7",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice/post/requestBody/content/application~1json/schema",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice/post/responses/200/content/application~1json/schema/properties/data",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice~1%7Birn%7D~1pdf/get/responses/400/content/application~1json/schema/properties/error",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice~1cancel/patch/requestBody/content/application~1json/schema/properties/IRN",
+    "vayana-network-atlas-openapi.json: dangling $ref: #/paths/~1atlas~1v1~1irp~1%7Birp%7D~1eway-bill~1by-einvoice/post/requestBody/content/application~1json/schema"
+  ],
+  "warnings": [],
+  "notes": [
+    "1 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "vayana-network-atlas-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "vayana-network-atlas-openapi.json: declared missing tag: Authorization Suite",
+    "vayana-network-atlas-openapi.json: declared missing tag: Compliance Suite",
+    "vayana-network-atlas-openapi.json: declared missing tag: Support Suite",
+    "vayana-network-atlas-openapi.json: declared missing tag: Verification Suite",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "_original/vayana-network-atlas-openapi_2.json: archived document superseded by a larger archived document",
+    "vayana-network-authorization-suite-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "vayana-network-compliance-suite-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "vayana-network-support-suite-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "vayana-network-verification-suite-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

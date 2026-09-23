@@ -1,0 +1,354 @@
+openapi: 3.2.0
+info:
+  title: Vayana API Documentation Support Suite API
+  version: 1.0.0
+  description: To integrate these APIs please follow documentation
+servers:
+- url: https://s.api.one.vayana.com
+  description: Sandbox Server
+tags:
+- name: Support Suite
+paths:
+  /atlas/v1/eas-task/{task-id}:
+    get:
+      tags:
+      - Support Suite
+      summary: Get Task Status
+      description: This API is used to fetch the current status of the long-running-tasks.
+      operationId: eas_enriched_v1_task_status
+      _peer-api: enriched/tasks/v1.0/status/2e9f6d17-ffcb-4395-8d0c-3fa8c5d08d95
+      parameters:
+      - $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/parameters/0'
+      - $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/parameters/2'
+      - $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/parameters/1'
+      - name: task-id
+        description: Reference ID provided in the response of a long-running operation
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful Response
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+            X-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-CALL-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/400/content/application~1json/schema/properties/status'
+                    example: '1'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 2e9f6d17-ffcb-4395-8d0c-3fa8c5d08d95
+                      status:
+                        type: string
+                        example: completed
+                      jobs:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 1
+                          pending:
+                            type: integer
+                            example: 0
+                  error:
+                    $ref: '#/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice~1%7Birn%7D~1pdf/get/responses/400/content/application~1json/schema/properties/error'
+                    example: null
+                  info:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/info'
+                    example: null
+                  additionalInfo:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/additionalInfo'
+                    example: null
+                  alert:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/alert'
+                    example: null
+                required:
+                - status
+                - data
+        '400':
+          description: Failure Response
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+            X-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-CALL-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/400/content/application~1json/schema/properties/status'
+                  data:
+                    type: 'null'
+                  error:
+                    $ref: '#/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice~1%7Birn%7D~1pdf/get/responses/400/content/application~1json/schema/properties/error'
+                    type: object
+                  info:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/info'
+                    example: null
+                  additionalInfo:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/additionalInfo'
+                    example: null
+                  alert:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/alert'
+                    example: null
+                required:
+                - status
+                - error
+        '403':
+          description: Authorization information is missing or invalid.
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+            X-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-CALL-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/403/content/application~1json/schema'
+      security:
+      - BearerAuth: []
+  /atlas/v1/eas-task/{task-id}/download:
+    get:
+      tags:
+      - Support Suite
+      summary: Get Download File
+      description: This API is used to download the processed response of the long-running-tasks. Download API response is unique for each API. Check out for detailed-documentation in the respective APIs.
+      operationId: eas_enriched_v1_download_task
+      _peer-api: enriched/tasks/v1.0/download/1872585f-4397-4e96-81d9-649f3b25aa2b
+      parameters:
+      - $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/parameters/0'
+      - $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/parameters/2'
+      - name: accept
+        in: header
+        required: true
+        schema:
+          type: string
+          example: application/zip
+      - required: true
+        schema:
+          type: string
+        name: task-id
+        description: The task-id obtained by hitting async api
+        in: path
+      responses:
+        '200':
+          description: Successful Response
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+            X-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-CALL-ID'
+            Content-Encoding:
+              name: Content-Encoding
+              description: A Encoding Algorithm used for encoding response
+              in: header
+              schema:
+                type: gzip
+          content:
+            application/zip:
+              schema:
+                type: string
+                contentEncoding: gzip
+        '400':
+          description: Failure Response
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/400/content/application~1json/schema/properties/status'
+                  data:
+                    type: 'null'
+                  error:
+                    $ref: '#/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice~1%7Birn%7D~1pdf/get/responses/400/content/application~1json/schema/properties/error'
+                    type: object
+                  info:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/info'
+                    example: null
+                  additionalInfo:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/additionalInfo'
+                    example: null
+                  alert:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/alert'
+                    example: null
+                required:
+                - status
+                - error
+        '403':
+          description: Authorization information is missing or invalid.
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/403/content/application~1json/schema'
+      security:
+      - BearerAuth: []
+  /atlas/v1/eas-task/{task-id}/result:
+    get:
+      tags:
+      - Support Suite
+      summary: Get Result
+      description: This API is used to fetch the result of the long-running-tasks. The `data` depends on which API created the `task-id` (see Examples dropdown on 200). Full schemas are also documented on each originating API.
+      operationId: eas_enriched_v1_result_task
+      _peer-api: enriched/tasks/v1.0/result/1872585f-4397-4e96-81d9-649f3b25aa2b
+      parameters:
+      - $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/parameters/0'
+      - $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/parameters/2'
+      - $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/parameters/1'
+      - name: task-id
+        description: Reference ID provided in the response of a long-running operation
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful Response
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+            X-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-CALL-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/400/content/application~1json/schema/properties/status'
+                    example: '1'
+                  data:
+                    description: Varies by the API that created the task-id.
+                    oneOf:
+                    - title: GCS Generate Result
+                      type: object
+                      description: Result for a task created by GCS Generate.
+                      properties:
+                        gstin:
+                          type: string
+                          minLength: 15
+                          maxLength: 15
+                          pattern: ([0-9]{2}[0-9A-Z]{13})
+                          example: 29AAACT2727Q1ZS
+                        score:
+                          type: number
+                          example: 462.5
+                      required:
+                      - gstin
+                      - score
+                      example:
+                        gstin: 29AAACT2727Q1ZS
+                        score: 462.5
+                  error:
+                    $ref: '#/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice~1%7Birn%7D~1pdf/get/responses/400/content/application~1json/schema/properties/error'
+                    example: null
+                  info:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/info'
+                    example: null
+                  additionalInfo:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/additionalInfo'
+                    example: null
+                  alert:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/alert'
+                    example: null
+                required:
+                - status
+                - data
+              examples:
+                GCS Generate:
+                  summary: Result when task-id comes from GCS Generate
+                  value:
+                    status: '1'
+                    data:
+                    - status: '1'
+                      data:
+                        gstin: 26ABCMH0791G9ZI
+                        score: 450
+                      error: null
+                      info: null
+                      additionalInfo: null
+                      alert: null
+                    - status: '0'
+                      data: null
+                      error:
+                        type: Runtime
+                        message: err-gcs-generation-failed
+                        args:
+                          gstin: 29AAACT2744Q1ZS
+                      info: null
+                      additionalInfo: null
+                      alert: null
+                    error: null
+                    info: null
+                    additionalInfo: null
+                    alert: null
+        '400':
+          description: Failure Response
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+            X-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-CALL-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/400/content/application~1json/schema/properties/status'
+                  data:
+                    type: 'null'
+                  error:
+                    $ref: '#/paths/~1atlas~1v1~1irp~1%7Birp%7D~1einvoice~1%7Birn%7D~1pdf/get/responses/400/content/application~1json/schema/properties/error'
+                    type: object
+                  info:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/info'
+                    example: null
+                  additionalInfo:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/additionalInfo'
+                    example: null
+                  alert:
+                    $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/content/application~1json/schema/properties/alert'
+                    example: null
+                required:
+                - status
+                - error
+        '403':
+          description: Authorization information is missing or invalid.
+          headers:
+            X-ATLAS-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-ATLAS-CALL-ID'
+            X-CALL-ID:
+              $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/200/headers/X-CALL-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1atlas~1v1~1gcs~1bulk/post/responses/403/content/application~1json/schema'
+      security:
+      - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
