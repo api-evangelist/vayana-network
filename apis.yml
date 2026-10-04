@@ -133,6 +133,9 @@ apis:
   - type: Documentation
     url: https://s.docs.atlas.vayana.com/
 common:
+- type: CapabilityMap
+  url: capabilities/vayana-network-capability-edges.yml
+  name: Vayana Network Business Capability Map
 - type: Overlay
   url: overlays/vayana-network-atlas-overlay.yaml
 - type: Website
