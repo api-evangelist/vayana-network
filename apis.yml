@@ -15,7 +15,7 @@ x-type: company
 x-source: harvest:secondary-market
 specificationVersion: '0.20'
 created: '2026-09-02'
-modified: '2026-09-02'
+modified: '2026-10-06'
 tags:
 - Company
 - Trade Finance
@@ -133,6 +133,8 @@ apis:
   - type: Documentation
     url: https://s.docs.atlas.vayana.com/
 common:
+- url: https://www.vayana.com/blogs/feed/
+  type: BlogRSS
 - type: CapabilityMap
   url: capabilities/vayana-network-capability-edges.yml
   name: Vayana Network Business Capability Map
